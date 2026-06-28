@@ -1,7 +1,6 @@
 import express from "express";
 import makeWASocket, {
   useMultiFileAuthState,
-  DisconnectReason,
   fetchLatestBaileysVersion
 } from "@whiskeysockets/baileys";
 import P from "pino";
@@ -10,11 +9,11 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 
 app.get("/", (_, res) => {
-  res.send("WhatsApp Bot Running");
+  res.send("WhatsApp Pairing Bot Running");
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
 async function startBot() {
@@ -25,29 +24,29 @@ async function startBot() {
     version,
     auth: state,
     logger: P({ level: "silent" }),
-    browser: ["Ubuntu", "Chrome", "22.0.0"],
     printQRInTerminal: false
   });
 
   sock.ev.on("creds.update", saveCreds);
 
-  sock.ev.on("connection.update", async ({ connection }) => {
+  if (!sock.authState.creds.registered) {
+    const phone = "249125270800"; // اكتب رقمك هنا بصيغة 249xxxxxxxxx
 
-    if (connection === "connecting") {
+    const code = await sock.requestPairingCode(phone);
 
-      const code = await sock.requestPairingCode("249125270800");
+    console.log("===========================");
+    console.log("PAIRING CODE:", code);
+    console.log("===========================");
+  }
 
-      console.log("=================================");
-      console.log("PAIRING CODE:", code);
-      console.log("=================================");
+  sock.ev.on("connection.update", ({ connection }) => {
+    if (connection === "open") {
+      console.log("✅ WhatsApp Connected");
     }
 
     if (connection === "close") {
+      console.log("❌ Connection Closed");
       startBot();
-    }
-
-    if (connection === "open") {
-      console.log("✅ WhatsApp Connected");
     }
   });
 }
