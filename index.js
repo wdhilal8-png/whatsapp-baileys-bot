@@ -1,10 +1,23 @@
+import express from "express";
 import makeWASocket, {
   useMultiFileAuthState,
   DisconnectReason
 } from "@whiskeysockets/baileys";
-
 import pino from "pino";
 
+// ===== Express Server =====
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send("WhatsApp Bot is Running");
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+// ===== WhatsApp Bot =====
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("./session");
 
@@ -37,6 +50,7 @@ async function startBot() {
 
   if (!sock.authState.creds.registered) {
     const phone = "249125270800"; // اكتب رقمك بدون +
+
     const code = await sock.requestPairingCode(phone);
 
     console.log("=================================");
