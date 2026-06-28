@@ -28,8 +28,12 @@ async function startBot() {
     logger: P({ level: "silent" }),
     browser: ["Ubuntu", "Chrome", "22.0.0"],
     printQRInTerminal: false,
-    syncFullHistory: false
-  });
+    syncFullHistory: false,
+    markOnlineOnConnect: false,
+    generateHighQualityLinkPreview: true,
+    connectTimeoutMs: 60000,
+    defaultQueryTimeoutMs: 60000
+});
 
   sock.ev.on("creds.update", saveCreds);
 
